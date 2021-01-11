@@ -1,0 +1,41 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+
+    <title>Signin Template for Bootstrap</title>
+
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{url_for('static', filename='css/stylelogin.css')}}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="https://getbootstrap.com/docs/4.0/examples/sign-in/signin.css" rel="stylesheet">
+
+  </head>
+    {% include '_messages.html' %}
+    {% from '_formhelpers.html' import render_field %}
+    <body class="text-center">
+        <form class="form-signin" action="" method="post">
+                {{ form.csrf_token }}
+
+
+              <h1 class="h3 mb-3 font-weight-normal">Авторизация</h1>
+
+              {{ render_field(form.login , class="form-control") }}
+
+
+              {{ render_field(form.password , class="form-control") }}
+
+
+              <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+
+        </form>
+
+
+</body>
+</html>

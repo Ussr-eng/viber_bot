@@ -1,0 +1,1151 @@
+<html>
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, shrink-to-fit=no">
+        <title>Messenger - Responsive Bootstrap Application</title>
+
+        <!-- Template core CSS -->
+
+        <link href="{{url_for('static', filename='css/stylechat.css')}}" rel="stylesheet">
+
+
+
+    </head>
+<body>
+        {% from '_formhelpers.html' import render_field %}
+        <div class="layout">
+
+            <!-- Navigation -->
+            <div class="navigation navbar navbar-light justify-content-center py-xl-7">
+
+                <!-- Brand -->
+                <a href="#" class="d-none d-xl-block mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="" x="0px" y="0px" viewBox="0 0 46 46" enable-background="new 0 0 46 46" xml:space="preserve" class="injected-svg mx-auto fill-primary" style="height: 46px;">
+    <polygon opacity="0.7" points="45,11 36,11 35.5,1 "></polygon>
+    <polygon points="35.5,1 25.4,14.1 39,21 "></polygon>
+    <polygon opacity="0.4" points="17,9.8 39,21 17,26 "></polygon>
+    <polygon opacity="0.7" points="2,12 17,26 17,9.8 "></polygon>
+    <polygon opacity="0.7" points="17,26 39,21 28,36 "></polygon>
+    <polygon points="28,36 4.5,44 17,26 "></polygon>
+    <polygon points="17,26 1,26 10.8,20.1 "></polygon>
+</svg>
+                </a>
+
+                <!-- Menu -->
+                <ul class="nav navbar-nav flex-row flex-xl-column flex-grow-1 justify-content-between justify-content-xl-center py-3 py-lg-0" role="tablist">
+
+                    <!-- Invisible item to center nav vertically -->
+                    <li class="nav-item d-none d-xl-block invisible flex-xl-grow-1">
+                        <a class="nav-link position-relative p-0 py-xl-3" href="#" title="">
+                            <i class="icon-lg fe-x"></i>
+                        </a>
+                    </li>
+
+                    <!-- Create group -->
+
+
+                    <!-- Friend -->
+
+
+                    <!-- Chats -->
+                    <li class="nav-item mt-xl-9">
+                        <a class="nav-link position-relative p-0 py-xl-3 active" data-toggle="tab" href="#tab-content-dialogs" title="Chats" role="tab">
+                            <i class="icon-lg fe-message-square"></i>
+                            <div class="badge badge-dot badge-primary badge-bottom-center"></div>
+                        </a>
+                    </li>
+
+                    <!-- Profile -->
+                    <li class="nav-item mt-xl-9">
+                        <a class="nav-link position-relative p-0 py-xl-3" data-toggle="tab" href="#tab-content-user" title="User" role="tab">
+                            <i class="icon-lg fe-user"></i>
+                        </a>
+                    </li>
+
+                    <!-- Demo only: Documentation -->
+
+
+                    <!-- Settings -->
+                    <li class="nav-item d-none d-xl-block invisible flex-xl-grow-1">
+                        <a class="nav-link position-relative p-0 py-xl-3" href="#" title="">
+                            <i class="icon-lg fe-x"></i>
+                        </a>
+                    </li>
+
+
+
+                </ul>
+                <!-- Menu -->
+
+            </div>
+            <!-- Navigation -->
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="tab-content h-100" role="tablist">
+
+                    <div class="tab-pane fade h-100 show active" id="tab-content-dialogs" role="tabpanel">
+                        <div class="d-flex flex-column h-100">
+
+                            <div class="hide-scrollbar">
+                                <div class="container-fluid py-6">
+
+                                    <!-- Title -->
+                                    <h2 class="font-bold mb-6">Chats</h2>
+                                    <!-- Title -->
+
+                                    <!-- Search -->
+
+                                    <!-- Search -->
+
+                                    <!-- Favourites -->
+                                    <div class="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
+                                    {% if all_users != [] %}
+                                    {% for user in all_users %}
+                                        <a href="{{ url_for('chat', id=user.id ) }}" onclick="resetTimeout();" class="d-block text-reset mr-7 mr-lg-6">
+                                            <div class="avatar avatar-sm  mb-3">
+                                                <img class="avatar-img" src="{{url_for('static', filename='images/user.png')}}" alt="Image Description">
+                                            </div>
+                                            <div class="small">{{ user.name }}</div>
+                                        </a>
+                                    {% endfor %}
+                                    {% else %}
+
+                                        <div class="input-group">
+                                            <div  class="form-control form-control-lg"  aria-label="Search for messages or users...">
+                                            <div class="input-group-append">
+
+                                                <h6 class="text-truncate mb-0 mr-auto">Все чаты исчерпали свой лимит по времени</h6>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <!-- Favourites -->
+
+                                    <!-- Chats -->
+                                    <nav class="nav d-block list-discussions-js mb-n6">
+                                        <!-- Chat link -->
+                                    {% if all_users != [] %}
+                                        {% for user in all_users %}
+                                        <a class="text-reset nav-link p-0 mb-6" onclick="resetTimeout();" href="{{ url_for('chat', id=user.id ) }}">
+                                            <div class="card card-active-listener">
+                                                <div class="card-body">
+
+                                                    <div class="media">
+
+
+                                                        <div class="avatar mr-5">
+                                                            <img class="avatar-img" src="{{url_for('static', filename='images/user.png')}}" alt="Bootstrap Themes">
+                                                        </div>
+
+                                                        <div class="media-body overflow-hidden">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <h6 class="text-truncate mb-0 mr-auto">{{ user.name }}</h6>
+
+
+
+                                                                <p class="small text-muted text-nowrap ml-4">{{ user.messages[0].date_created }}</p>
+                                                            </div>
+                                                            <div class="text-truncate">{{ user.messages[0].message }}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="badge badge-circle badge-primary badge-border-light badge-top-right">
+                                                    <span>1</span>
+                                                </div>
+                                            </div>
+                                        </a>
+            <!-- Chat link -->          {% endfor %}
+                                        {% else %}
+                                        <a class="text-reset nav-link p-0 mb-6" href="#">
+                                            <div class="card card-active-listener">
+                                                <div class="card-body">
+
+                                                    <div class="media">
+
+
+
+
+                                                        <div class="media-body overflow-hidden">
+                                                            <div class="d-flex align-items-center mb-1">
+
+
+
+
+
+                                                            </div>
+                                                            <div class="text-truncate">Нету новых сообщений</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="badge badge-circle badge-primary badge-border-light badge-top-right">
+                                                    <span><i class="fe-alert-octagon"></i></span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <!-- Chat link -->
+                                        {% endif %}
+                                    </nav>
+                                    <!-- Chats -->
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade h-100" id="tab-content-demos" role="tabpanel">
+                        <div class="d-flex flex-column h-100">
+
+                            <div class="hide-scrollbar">
+                                <div class="container-fluid py-6">
+
+                                    <!-- Title -->
+                                    <h2 class="font-bold mb-6">Demos</h2>
+                                    <!-- Title -->
+
+                                    <!-- Search -->
+
+                                    <!-- Search -->
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <div class="card-body">
+
+                                            <div class="media align-items-center">
+                                                <div class="mr-5">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="" x="0px" y="0px" viewBox="0 0 46 46" enable-background="new 0 0 46 46" xml:space="preserve" class="injected-svg fill-primary" style="height: 46px; width: 46px;">
+    <polygon opacity="0.7" points="45,11 36,11 35.5,1 "></polygon>
+    <polygon points="35.5,1 25.4,14.1 39,21 "></polygon>
+    <polygon opacity="0.4" points="17,9.8 39,21 17,26 "></polygon>
+    <polygon opacity="0.7" points="2,12 17,26 17,9.8 "></polygon>
+    <polygon opacity="0.7" points="17,26 39,21 28,36 "></polygon>
+    <polygon points="28,36 4.5,44 17,26 "></polygon>
+    <polygon points="17,26 1,26 10.8,20.1 "></polygon>
+</svg>
+                                                </div>
+                                                <div class="media-body">
+                                                    <h5 class="mb-0">
+                                                        <a href="documentation/index.html" class="text-basic-inverse stretched-link">Documentation</a>
+                                                    </h5>
+                                                    <p>Quick setup and build tools.</p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <h5 class="my-6">Chat Pages:</h5>
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <img class="card-img-top" alt="" src="assets/images/demos/chat.jpg">
+                                        <div class="card-body border-top">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <h5 class="mb-0">Light mode</h5>
+                                                </div>
+                                                <div class="align-self-center">
+                                                    <a href="demo-light/" class="text-muted stretched-link">
+                                                        <i class="fe-link"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <img class="card-img-top" alt="" src="assets/images/demos/chat-dark.jpg">
+                                        <div class="card-body border-top">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <h5 class="mb-0">Dark mode</h5>
+                                                </div>
+                                                <div class="align-self-center">
+                                                    <a href="demo-dark/" class="text-muted stretched-link">
+                                                        <i class="fe-link"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <h5 class="my-6">Account Pages:</h5>
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <img class="card-img-top" alt="" src="assets/images/demos/sign-in-dark.jpg">
+                                        <div class="card-body border-top">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <h5 class="mb-0">Sign In</h5>
+                                                </div>
+                                                <div class="align-self-center">
+                                                    <a href="signin.html" class="text-muted stretched-link">
+                                                        <i class="fe-link"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <img class="card-img-top" alt="" src="assets/images/demos/sign-up-dark.jpg">
+                                        <div class="card-body border-top">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <h5 class="mb-0">Sign Up</h5>
+                                                </div>
+                                                <div class="align-self-center">
+                                                    <a href="signup.html" class="text-muted stretched-link">
+                                                        <i class="fe-link"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <img class="card-img-top" alt="" src="assets/images/demos/password-reset-dark.jpg">
+                                        <div class="card-body border-top">
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <h5 class="mb-0">Password Reset</h5>
+                                                </div>
+                                                <div class="align-self-center">
+                                                    <a href="password-reset.html" class="text-muted stretched-link">
+                                                        <i class="fe-link"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade h-100" id="tab-content-user" role="tabpanel">
+                        <div class="d-flex flex-column h-100">
+
+                            <div class="hide-scrollbar">
+                                <div class="container-fluid py-6">
+
+                                    <!-- Title -->
+                                    <h2 class="font-bold mb-6">Profile</h2>
+                                    <!-- Title -->
+
+                                    <!-- Search -->
+
+                                    <!-- Search -->
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <div class="card-body">
+                                            <div class="text-center py-6">
+                                                <!-- Photo -->
+                                                <div class="avatar avatar-xl mb-5">
+                                                    <img class="avatar-img" src="{{url_for('static', filename='images/admin.png')}}" alt="">
+                                                </div>
+
+                                                <h5>{{ current_user.name }}</h5>
+                                                <p class="text-muted">Менеджер</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <div class="card-body">
+                                            <ul class="list-group list-group-flush">
+
+
+                                                <li class="list-group-item px-0 py-6">
+                                                    <div class="media align-items-center">
+                                                        <div class="media-body">
+                                                            <p class="small text-muted mb-0">Phone</p>
+                                                            <p> - - </p>
+                                                        </div>
+                                                        <i class="text-muted icon-sm fe-mic"></i>
+                                                    </div>
+                                                </li>
+
+                                                <li class="list-group-item px-0 py-6">
+                                                    <div class="media align-items-center">
+                                                        <div class="media-body">
+                                                            <p class="small text-muted mb-0">Email</p>
+                                                            <p> - - </p>
+                                                        </div>
+                                                        <i class="text-muted icon-sm fe-mail"></i>
+                                                    </div>
+                                                </li>
+
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <!-- Card -->
+                                    <div class="card mb-6">
+                                        <div class="card-body">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item px-0 py-6">
+                                                    <a href="#" class="media text-muted">
+                                                        <div class="media-body align-self-center">
+                                                            Twitter
+                                                        </div>
+                                                        <i class="icon-sm fe-twitter"></i>
+                                                    </a>
+                                                </li>
+
+                                                <li class="list-group-item px-0 py-6">
+                                                    <a href="#" class="media text-muted">
+                                                        <div class="media-body align-self-center">
+                                                        Facebook
+                                                        </div>
+                                                        <i class="icon-sm fe-facebook"></i>
+                                                    </a>
+                                                </li>
+
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- Card -->
+
+                                    <div class="form-row">
+
+
+                                        <div class="col">
+                                            <!-- Button -->
+                                            <a class="text-reset nav-link p-0 mb-6" href="{{ url_for('manager_logout') }}">
+                                            <button type="button" class="btn btn-lg btn-block btn-basic d-flex align-items-center">
+                                                Выход
+                                                <span class="fe-log-out ml-auto"></span>
+                                            </button>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+            </div>
+            <!-- Sidebar -->
+
+            <!-- Main Content -->
+            <div class="main main-visible" data-mobile-height="">
+
+                <!-- Chat -->
+                <div id="chat-2" class="chat dropzone-form-js" data-dz-url="some.php">
+
+                    <!-- Chat: body -->
+                    <div class="chat-body">
+
+                        <!-- Chat: Header -->
+                        <div class="chat-header border-bottom py-4 py-lg-6 px-lg-8">
+                            <div class="container-xxl">
+
+                                <div class="row align-items-center">
+
+                                    <!-- Close chat(mobile) -->
+                                    <div class="col-3 d-xl-none">
+                                        <ul class="list-inline mb-0">
+                                            <li class="list-inline-item">
+                                                <a class="text-muted px-0" href="#" data-chat="open">
+                                                    <i class="icon-md fe-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Chat photo -->
+                                    <div class="col-6 col-xl-6">
+                                        <div class="media text-center text-xl-left">
+                                            <div class="avatar avatar-sm avatar-online d-none d-lg-inline-block mr-5">
+                                                <img src="{{url_for('static', filename='images/user.png')}}" class="avatar-img" alt="">
+                                            </div>
+
+                                            <div class="media-body align-self-center text-truncate">
+                                                <h6 class="text-truncate mb-n1">{{ users.name }}</h6>
+                                                <span class="badge badge-dot badge-success d-inline-block d-xl-none mr-1"></span>
+                                                <small class="text-muted">Online</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Chat toolbar -->
+                                    <div class="col-3 col-xl-6 text-right">
+                                        <ul class="nav justify-content-end">
+
+
+
+
+
+                                            <li class="nav-item list-inline-item d-none d-xl-block mr-0">
+                                                <a class="nav-link text-muted px-3" href="#" data-chat-sidebar-toggle="#chat-2-info" title="Профиль/Pеквизиты">
+                                                    <i class="icon-md fe-more-vertical"></i>
+                                                </a>
+                                            </li>
+
+                                            <!-- Mobile nav -->
+                                            <li class="nav-item list-inline-item d-block d-xl-none">
+                                                <div class="dropdown">
+                                                    <a class="nav-link text-muted px-0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="icon-md fe-more-vertical"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu">
+
+                                                        <a class="dropdown-item d-flex align-items-center" href="#" data-chat-sidebar-toggle="#chat-2-info">
+                                                            Реквизиты/профиль <span class="ml-auto pl-5 fe-more-horizontal"></span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <!-- Mobile nav -->
+                                        </ul>
+                                    </div>
+
+                                </div><!-- .row -->
+
+                            </div>
+                        </div>
+                        <!-- Chat: Header -->
+
+                        <!-- Chat: Search -->
+                        <div class="collapse border-bottom px-lg-8" id="chat-2-search">
+                            <div class="container-xxl py-4 py-lg-6">
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-lg" placeholder="Search this chat" aria-label="Search this chat">
+
+                                    <div class="input-group-append">
+                                        <button class="btn btn-lg btn-ico btn-secondary btn-minimal" type="submit">
+                                            <i class="fe-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- Chat: Search -->
+
+                        <!-- Chat: Content-->
+                        <div class="chat-content px-lg-8" id="scroll">
+                            <div class="container-xxl py-6 py-lg-10"  >
+
+                                <!-- Message -->
+
+                                <!-- Message -->
+                                {% for message in messages %}
+                                    {% if message.from_admin == False %}
+                                <div class="message">
+                                    <!-- Avatar -->
+                                    <a class="avatar avatar-sm mr-4 mr-lg-5" href="#" data-chat-sidebar-toggle="#chat-2-info">
+                                        <img class="avatar-img" src="{{url_for('static', filename='images/user.png')}}" alt="">
+                                    </a>
+
+                                    <!-- Message: body -->
+                                    <div class="message-body">
+
+                                        <!-- Message: row -->
+                                        <div class="message-row">
+                                            <div class="d-flex align-items-center">
+
+                                                <!-- Message: content -->
+                                                <div class="message-content bg-light">
+                                                    <h6 class="mb-2">{{users.name}}</h6>
+                                                    <div>{{ message.message }}</div>
+
+                                                    <div class="mt-1">
+                                                        <small class="opacity-65">{{ message.date_created }}</small>
+                                                    </div>
+                                                </div>
+                                                <!-- Message: content -->
+
+                                                <!-- Message: dropdown -->
+
+                                                <!-- Message: dropdown -->
+
+                                            </div>
+                                        </div>
+                                        <!-- Message: row -->
+
+                                    </div>
+                                    <!-- Message: body -->
+                                </div>
+                                <!-- Message -->
+                                {% endif %}
+                                {% if message.from_admin == True %}
+                                <!-- Message -->
+                                <div class="message message-right">
+                                    <!-- Avatar -->
+                                    <div class="avatar avatar-sm ml-4 ml-lg-5 d-none d-lg-block">
+                                        <img class="avatar-img" src="{{url_for('static', filename='images/admin.png')}}" alt="">
+                                    </div>
+
+                                    <!-- Message: body -->
+                                    <div class="message-body">
+
+                                        <!-- Message: row -->
+                                        <div class="message-row">
+                                            <div class="d-flex align-items-center justify-content-end">
+
+                                                <!-- Message: dropdown -->
+
+                                                <!-- Message: dropdown -->
+
+                                                <!-- Message: content -->
+                                                <div class="message-content bg-primary text-white">
+                                                    <div>{{ message.message }}</div>
+
+                                                    <div class="mt-1">
+                                                        <small class="opacity-65">{{ message.date_created }}</small>
+                                                    </div>
+                                                </div>
+                                                <!-- Message: content -->
+
+                                            </div>
+                                        </div>
+                                        <!-- Message: row -->
+
+                                    </div>
+                                    <!-- Message: body -->
+                                </div>
+                                <!-- Message -->
+                            {% endif %}
+                        {% endfor %}
+
+                                <!-- Message: Typing -->
+
+                            </div>
+
+                            <!-- Scroll to end -->
+                            <div class="end-of-chat"></div>
+                        </div>
+                        <!-- Chat: Content -->
+
+                        <!-- Chat: DropzoneJS container -->
+                        <div class="chat-files hide-scrollbar px-lg-8">
+                            <div class="container-xxl">
+                                <div class="dropzone-previews-js form-row py-4"></div>
+                            </div>
+                        </div>
+                        <!-- Chat: DropzoneJS container -->
+
+                        <!-- Chat: Footer -->
+                        <div class="chat-footer border-top py-4 py-lg-6 px-lg-8">
+                            <div class="container-xxl">
+
+                                <form id="chat-id-2-form"  method="post" data-emoji-form="">
+                                    {{ form.csrf_token }}
+                                    <div class="form-row align-items-center">
+                                        <div class="col">
+                                            <div class="input-group">
+
+
+                                                <!-- Textarea -->
+                                                <div id="chat-id-2-input" class="form-control bg-transparent border-0" data-emoji-input="" data-autosize="true" style="overflow: hidden; overflow-wrap: break-word; resize: none; height: 46px;">{{render_field(form.message, class="form-control bg-transparent border-0")}}</div>
+
+                                                <!-- Emoji button -->
+                                                <div class="input-group-append" style="display: none; ">
+                                                    <button class="btn btn-ico btn-secondary btn-minimal bg-transparent border-0" type="button" data-emoji-btn="">
+                                                        <svg onclick="resetTimeout();" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smile injected-svg"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Upload button -->
+
+
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Submit button -->
+                                        <div class="col-auto">
+                                            <button class="btn btn-ico btn-primary rounded-circle" type="submit">
+                                                <span class="fe-send"></span>
+                                            </button>
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                        <!-- Chat: Footer -->
+                    </div>
+                    <!-- Chat: body -->
+
+                    <!-- Chat Details -->
+                    <div id="chat-2-info" class="chat-sidebar">
+                        <div class="d-flex h-100 flex-column">
+
+                            <!-- Header -->
+                            <div class="border-bottom py-4 py-lg-6">
+                                <div class="container-fluid">
+
+                                    <ul class="nav justify-content-between align-items-center">
+                                        <!-- Close sidebar -->
+                                        <li class="nav-item list-inline-item">
+                                            <a class="nav-link text-muted px-0" href="#" data-chat-sidebar-close="">
+                                                <i class="icon-md fe-chevron-right"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Title(mobile) -->
+                                        <li class="text-center d-block d-lg-none">
+                                            <h6 class="mb-n2">{{ users.name }}</h6>
+                                            <small class="text-muted">Реквизиты/профиль</small>
+                                        </li>
+
+                                        <!-- Dropdown -->
+                                        <li class="nav-item list-inline-item">
+                                            <div class="dropdown">
+                                                <a class="nav-link text-muted px-0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="icon-md fe-sliders"></i>
+                                                </a>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                                        None
+                                                        <span class="ml-auto fe-bell"></span>
+                                                    </a>
+                                                    <a class="dropdown-item d-flex align-items-center" href="#">
+                                                        None
+                                                        <span class="ml-auto fe-trash-2"></span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                            <!-- Header -->
+
+                            <!-- Body -->
+                            <div class="hide-scrollbar flex-fill">
+
+                                <div class="border-bottom text-center py-9 px-10">
+                                    <!-- Photo -->
+                                    <div class="avatar avatar-xl mx-5 mb-5">
+                                        <img class="avatar-img" src="{{url_for('static', filename='images/user.png')}}" alt="">
+                                    </div>
+                                    <h5>{{ users.name }}</h5>
+                                    <p class="text-muted">Собеседник</p>
+                                </div>
+
+                                <!-- Navs -->
+                                <div class="nav nav-tabs nav-justified bg-light rounded-0" role="tablist">
+                                    <a class="nav-item nav-link active" href="#chat-2-user-details" data-toggle="tab" aria-selected="true" role="tab">Детали</a>
+                                </div>
+                                <!-- Navs -->
+
+                                <div class="tab-content" role="tablist">
+                                    <!-- Details -->
+                                    <div id="chat-2-user-details" class="tab-pane fade show active" role="tabpanel">
+                                        <ul class="list-group list-group-flush mb-8">
+
+
+                                            <li class="list-group-item py-6">
+                                                <div class="media align-items-center">
+                                                    <div class="media-body">
+                                                        <p class="small text-muted mb-0">Phone</p>
+                                                        <p> - - </p>
+                                                    </div>
+                                                    <i class="text-muted icon-sm fe-mic"></i>
+                                                </div>
+                                            </li>
+
+                                            <li class="list-group-item py-6">
+                                                <div class="media align-items-center">
+                                                    <div class="media-body">
+                                                        <p class="small text-muted mb-0">Email</p>
+                                                        <p> - - </p>
+                                                    </div>
+                                                    <i class="text-muted icon-sm fe-mail"></i>
+                                                </div>
+                                            </li>
+
+
+                                        </ul>
+
+                                        <ul class="list-group list-group-flush">
+
+                                            <li class="list-group-item py-6">
+                                                <a href="{{ url_for('private_fop', id=users.id ) }}" onclick="resetTimeout();" class="media text-muted">
+                                                    <div class="media-body align-self-center">
+                                                        Приват ФОП
+                                                    </div>
+                                                    <i class="icon-sm fe-file-text"></i>
+                                                </a>
+                                            </li>
+
+                                            <li class="list-group-item py-6">
+                                                <a href="{{ url_for('mono_bank', id=users.id ) }}" onclick="resetTimeout();" class="media text-muted">
+                                                    <div class="media-body align-self-center ">
+                                                    МоноБанк
+                                                    </div>
+                                                    <i class="icon-sm fe-file-text"></i>
+                                                </a>
+                                            </li>
+
+                                            <li class="list-group-item py-6">
+                                                <a href="{{ url_for('privat', id=users.id ) }}" onclick="resetTimeout();" class="media text-muted">
+                                                    <div class="media-body align-self-center">
+                                                        Приват Банк
+                                                    </div>
+                                                    <i class="icon-sm fe-file-text"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <!-- Details -->
+
+                                    <!-- Files -->
+                                    <div id="chat-2-user-files" class="tab-pane fade" role="tabpanel">
+                                        <ul class="list-group list-group-flush list-group-no-border-first">
+                                            <!-- File -->
+                                            <li class="list-group-item py-6">
+                                                <div class="media">
+
+                                                    <div class="icon-shape bg-primary text-white mr-5">
+                                                        <i class="fe-paperclip"></i>
+                                                    </div>
+
+                                                    <div class="media-body align-self-center overflow-hidden">
+                                                        <h6 class="text-truncate mb-0">
+                                                            <a href="#" class="text-reset" title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
+                                                        </h6>
+
+                                                        <ul class="list-inline small mb-0">
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted">79.2 KB</span>
+                                                            </li>
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted text-uppercase">txt</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="align-self-center ml-5">
+                                                        <div class="dropdown">
+                                                            <a href="#" class="btn btn-sm btn-ico btn-link text-muted w-auto" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fe-more-vertical"></i>
+                                                            </a>
+                                                            <div class="dropdown-menu">
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Download <span class="ml-auto fe-download"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Share <span class="ml-auto fe-share-2"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Delete <span class="ml-auto fe-trash-2"></span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </li>
+                                            <!-- File -->
+
+<!-- File -->
+                                            <li class="list-group-item py-6">
+                                                <div class="media">
+
+                                                    <div class="icon-shape bg-primary text-white mr-5">
+                                                        <i class="fe-paperclip"></i>
+                                                    </div>
+
+                                                    <div class="media-body align-self-center overflow-hidden">
+                                                        <h6 class="text-truncate mb-0">
+                                                            <a href="#" class="text-reset" title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
+                                                        </h6>
+
+                                                        <ul class="list-inline small mb-0">
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted">79.2 KB</span>
+                                                            </li>
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted text-uppercase">psd</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="align-self-center ml-5">
+                                                        <div class="dropdown">
+                                                            <a href="#" class="btn btn-sm btn-ico btn-link text-muted w-auto" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fe-more-vertical"></i>
+                                                            </a>
+                                                            <div class="dropdown-menu">
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Download <span class="ml-auto fe-download"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Share <span class="ml-auto fe-share-2"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Delete <span class="ml-auto fe-trash-2"></span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </li>
+                                            <!-- File -->
+
+<!-- File -->
+                                            <li class="list-group-item py-6">
+                                                <div class="media">
+
+                                                    <div class="icon-shape bg-primary text-white mr-5">
+                                                        <i class="fe-paperclip"></i>
+                                                    </div>
+
+                                                    <div class="media-body align-self-center overflow-hidden">
+                                                        <h6 class="text-truncate mb-0">
+                                                            <a href="#" class="text-reset" title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
+                                                        </h6>
+
+                                                        <ul class="list-inline small mb-0">
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted">79.2 KB</span>
+                                                            </li>
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted text-uppercase">pdf</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="align-self-center ml-5">
+                                                        <div class="dropdown">
+                                                            <a href="#" class="btn btn-sm btn-ico btn-link text-muted w-auto" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fe-more-vertical"></i>
+                                                            </a>
+                                                            <div class="dropdown-menu">
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Download <span class="ml-auto fe-download"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Share <span class="ml-auto fe-share-2"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Delete <span class="ml-auto fe-trash-2"></span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </li>
+                                            <!-- File -->
+
+<!-- File -->
+                                            <li class="list-group-item py-6">
+                                                <div class="media">
+
+                                                    <div class="icon-shape bg-primary text-white mr-5">
+                                                        <i class="fe-paperclip"></i>
+                                                    </div>
+
+                                                    <div class="media-body align-self-center overflow-hidden">
+                                                        <h6 class="text-truncate mb-0">
+                                                            <a href="#" class="text-reset" title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
+                                                        </h6>
+
+                                                        <ul class="list-inline small mb-0">
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted">79.2 KB</span>
+                                                            </li>
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted text-uppercase">txt</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="align-self-center ml-5">
+                                                        <div class="dropdown">
+                                                            <a href="#" class="btn btn-sm btn-ico btn-link text-muted w-auto" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fe-more-vertical"></i>
+                                                            </a>
+                                                            <div class="dropdown-menu">
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Download <span class="ml-auto fe-download"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Share <span class="ml-auto fe-share-2"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Delete <span class="ml-auto fe-trash-2"></span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </li>
+                                            <!-- File -->
+
+<!-- File -->
+                                            <li class="list-group-item py-6">
+                                                <div class="media">
+
+                                                    <div class="icon-shape bg-primary text-white mr-5">
+                                                        <i class="fe-paperclip"></i>
+                                                    </div>
+
+                                                    <div class="media-body align-self-center overflow-hidden">
+                                                        <h6 class="text-truncate mb-0">
+                                                            <a href="#" class="text-reset" title="E5419783-047D-4B4C-B30E-F24DD8247731.JPG">E5419783-047D-4B4C-B30E-F24DD8247731.JPG</a>
+                                                        </h6>
+
+                                                        <ul class="list-inline small mb-0">
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted">79.2 KB</span>
+                                                            </li>
+                                                            <li class="list-inline-item">
+                                                                <span class="text-muted text-uppercase">pdf</span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="align-self-center ml-5">
+                                                        <div class="dropdown">
+                                                            <a href="#" class="btn btn-sm btn-ico btn-link text-muted w-auto" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fe-more-vertical"></i>
+                                                            </a>
+                                                            <div class="dropdown-menu">
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Download <span class="ml-auto fe-download"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Share <span class="ml-auto fe-share-2"></span>
+                                                                </a>
+                                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                                    Delete <span class="ml-auto fe-trash-2"></span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </li>
+                                            <!-- File -->
+
+
+                                        </ul>
+                                    </div>
+                                    <!-- Files -->
+                                </div>
+
+                            </div>
+                            <!-- Body -->
+
+                        </div>
+                    </div>
+                    <!-- Chat Details -->
+
+                </div>
+                <!-- Chat -->
+
+            </div>
+            <!-- Main Content -->
+
+        </div>
+        <!-- Layout -->
+
+        <!-- DropzoneJS: Template -->
+
+        <!-- DropzoneJS: Template -->
+
+        <!-- Modal: Invite friends -->
+        <div class="modal fade" id="invite-friends" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <div class="media flex-fill">
+                            <div class="icon-shape rounded-lg bg-primary text-white mr-5">
+                                <i class="fe-users"></i>
+                            </div>
+                            <div class="media-body align-self-center">
+                                <h5 class="modal-title">Invite friends</h5>
+                                <p class="small">Invite colleagues, clients and friends.</p>
+                            </div>
+                        </div>
+
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form action="#">
+                            <div class="form-group">
+                                <label for="invite-email" class="small">Email</label>
+                                <input type="text" class="form-control form-control-lg" id="invite-email">
+                            </div>
+
+                            <div class="form-group mb-0">
+                                <label for="invite-message" class="small">Invitation message</label>
+                                <textarea class="form-control form-control-lg" id="invite-message" data-autosize="true" style="overflow: hidden; overflow-wrap: break-word; resize: none;"></textarea>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-lg btn-block btn-primary d-flex align-items-center">
+                            Invite friend
+                            <i class="fe-user-plus ml-auto"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Modal: Invite friends -->
+        <script>
+            var element = document.getElementById("scroll");
+            element.scrollTop = element.scrollHeight;
+        </script>
+        <script type="text/javascript">
+            var timeout = setTimeout("location.reload(true);",600000);
+            function resetTimeout() {
+            clearTimeout(timeout);
+            timeout = setTimeout("location.reload(true);",600000);
+            }
+        </script>
+        <!-- Scripts -->
+        <script src="https://themes.2the.me/Messenger-1.1/assets/js/libs/jquery.min.js"></script>
+        <script src="https://themes.2the.me/Messenger-1.1/assets/js/bootstrap/bootstrap.bundle.min.js"></script>
+        <script src="https://themes.2the.me/Messenger-1.1/assets/js/plugins/plugins.bundle.js"></script>
+        <script src="https://themes.2the.me/Messenger-1.1/assets/js/template.js"></script>
+        <!-- Scripts -->
+
+
+<input type="file" multiple="multiple" class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;"></body>
+</html>
