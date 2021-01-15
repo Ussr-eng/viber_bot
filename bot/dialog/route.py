@@ -47,7 +47,7 @@ def incoming():
             "TextHAlign": "center",
             "TextVAlign": "bottom",
             "ActionType": "reply",
-            "ActionBody": "Консультация менеджера",
+            "ActionBody": "Свяжитесь со мной",
             "BgColor": "#fef8eb",
             "Image": "https://i.postimg.cc/VsDKccQ6/back.jpg"
 
