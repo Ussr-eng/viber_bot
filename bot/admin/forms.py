@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 
 
 class Chat(FlaskForm):
-    message = StringField('Ваше сообщение:')
+    message = StringField('Коснитесь...')
     select = RadioField('Реквизиты', choices=[('Приват ФОП: 4246001001336563 Мокрушин Кирилл. \n'
                                                'МоноБанк: 5375414123101718 Мокрушин Кирилл. \n'
                                                'Приват: 5168755905269185 Мокрушин Кирилл.', 'Все реквизиты'),

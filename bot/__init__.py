@@ -28,7 +28,7 @@ Base.query = session.query_property()
 
 
 
-admin = Admin(app, template_mode='bootstrap4')
+admin = Admin(app, template_mode='bootstrap3')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -37,8 +37,8 @@ login_manager.needs_refresh_message_category = 'denger'
 
 
 bot_configuration = BotConfiguration(
-    name='testybot',
-    avatar='https://bootdey.com/img/Content/avatar/avatar3.png',
+    name='FullCup',
+    avatar='https://i.ibb.co/wN5pM0B/photo-2021-01-18-20-00-23.jpg',
     auth_token='4c9c7acc1e400fbe-266ea034c860abc6-b50342de6358d929'
     )
 
