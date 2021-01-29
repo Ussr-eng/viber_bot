@@ -1,0 +1,8 @@
+{% for user in search_users %}
+    <a href="{{ url_for('chat', id=user.id ) }}" onclick="resetTimeout();" class="d-block text-reset mr-7 mr-lg-6">
+        <div class="avatar avatar-sm  mb-3">
+            <img class="avatar-img" src="{{url_for('static', filename='images/user.png')}}" alt="Image Description">
+        </div>
+        <div  class="small">{{ user.name }}</div>
+    </a>
+{% endfor %}

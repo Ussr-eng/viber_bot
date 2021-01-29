@@ -95,10 +95,16 @@
                                     <!-- Title -->
 
                                     <!-- Search -->
-
+                                    <div class="mb-6">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control form-control-lg" placeholder="Поиск пользователей..." aria-label="Поиск пользователей...">
+                                        </div>
+                                    </div>
                                     <!-- Search -->
 
-                                    <!-- Favourites -->
+                                    <!-- Удалить при настройке поиска смотреть index!! -->
+                                    <!-- Удалить при настройке поиска смотреть index!! -->
+                                    <!-- Удалить при настройке поиска смотреть index!! -->
                                     <div class="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
                                     {% if all_users != [] %}
                                     {% for user in all_users %}
@@ -110,11 +116,9 @@
                                         </a>
                                     {% endfor %}
                                     {% else %}
-
                                         <div class="input-group">
                                             <div  class="form-control form-control-lg"  aria-label="Search for messages or users...">
                                             <div class="input-group-append">
-
                                                 <h6 class="text-truncate mb-0 mr-auto">Все чаты исчерпали свой лимит по времени</h6>
                                             </div>
                                         </div>
@@ -141,13 +145,21 @@
 
                                                         <div class="media-body overflow-hidden">
                                                             <div class="d-flex align-items-center mb-1">
+                                                                {% if user.last_name != None %}
+                                                                <h6 class="text-truncate mb-0 mr-auto">{{ user.name }} {{ user.last_name }}</h6>
+                                                                {% else %}
                                                                 <h6 class="text-truncate mb-0 mr-auto">{{ user.name }}</h6>
+                                                                {% endif %}
 
 
 
-                                                                <p class="small text-muted text-nowrap ml-4">{{ user.messages[0].date_created }}</p>
+                                                                <p class="small text-muted text-nowrap ml-4">{{ user.messages[0].date_created.strftime("%d, %H:%M") }}</p>
                                                             </div>
+                                                            {% if user.messages[0].message != None %}
                                                             <div class="text-truncate">{{ user.messages[0].message }}</div>
+                                                            {% else %}
+                                                            <div class="text-truncate">Photo message</div>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -488,23 +500,25 @@
                                             <div class="avatar avatar-sm avatar-online d-none d-lg-inline-block mr-5">
                                                 <img src="{{url_for('static', filename='images/user.png')}}" class="avatar-img" alt="">
                                             </div>
-
+                                            {% if users.last_name == None %}
                                             <div class="media-body align-self-center text-truncate">
                                                 <h6 class="text-truncate mb-n1">{{ users.name }}</h6>
                                                 <span class="badge badge-dot badge-success d-inline-block d-xl-none mr-1"></span>
                                                 <small class="text-muted">Online</small>
                                             </div>
+                                            {% else %}
+                                            <div class="media-body align-self-center text-truncate">
+                                                <h6 class="text-truncate mb-n1">{{ users.name }} {{ users.last_name }}</h6>
+                                                <span class="badge badge-dot badge-success d-inline-block d-xl-none mr-1"></span>
+                                                <small class="text-muted">Online</small>
+                                            </div>
+                                            {% endif %}
                                         </div>
                                     </div>
 
                                     <!-- Chat toolbar -->
                                     <div class="col-3 col-xl-6 text-right">
                                         <ul class="nav justify-content-end">
-
-
-
-
-
                                             <li class="nav-item list-inline-item d-none d-xl-block mr-0">
                                                 <a class="nav-link text-muted px-3" href="#" data-chat-sidebar-toggle="#chat-2-info" title="Профиль/Pеквизиты">
                                                     <i class="icon-md fe-more-vertical"></i>
@@ -561,13 +575,13 @@
 
                                 <!-- Message -->
                                 {% for message in messages %}
-                                    {% if message.from_admin == False %}
+                                    {% if message.from_admin == False and message.message != None %}
+
                                 <div class="message">
                                     <!-- Avatar -->
                                     <a class="avatar avatar-sm mr-4 mr-lg-5" href="#" data-chat-sidebar-toggle="#chat-2-info">
                                         <img class="avatar-img" src="{{url_for('static', filename='images/user.png')}}" alt="">
                                     </a>
-
                                     <!-- Message: body -->
                                     <div class="message-body">
 
@@ -577,18 +591,17 @@
 
                                                 <!-- Message: content -->
                                                 <div class="message-content bg-light">
+                                                    {% if users.last_name != None %}
+                                                    <h6 class="mb-2">{{users.name}} {{users.last_name}}</h6>
+                                                    {% else %}
                                                     <h6 class="mb-2">{{users.name}}</h6>
+                                                    {% endif %}
                                                     <div>{{ message.message }}</div>
 
                                                     <div class="mt-1">
                                                         <small class="opacity-65">{{ message.date_created }}</small>
                                                     </div>
                                                 </div>
-                                                <!-- Message: content -->
-
-                                                <!-- Message: dropdown -->
-
-                                                <!-- Message: dropdown -->
 
                                             </div>
                                         </div>
@@ -599,6 +612,45 @@
                                 </div>
                                 <!-- Message -->
                                 {% endif %}
+                                {% if message.from_admin == False and message.message == None %}
+                                    <div class="message">
+                                    <!-- Avatar -->
+                                    <a class="avatar avatar-sm mr-4 mr-lg-5" href="#" data-chat-sidebar-toggle="#chat-2-info">
+                                        <img class="avatar-img" src="{{url_for('static', filename='images/user.png')}}" alt="">
+                                    </a>
+                                    <!-- Message: body -->
+                                    <div class="message-body">
+
+                                        <!-- Message: row -->
+                                        <div class="message-row">
+                                            <div class="d-flex align-items-center">
+
+
+                                                <div class="message-content bg-light">
+
+                                                    <div class="form-row">
+
+
+                                                        <div class="col">
+                                                            <img class="img-fluid rounded" src="{{url_for('static', filename='images/' + message.image + '.png')}}" data-action="zoom" alt="" style="">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mt-1">
+                                                        <small class="opacity-65">{{ message.date_created }}</small>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                        <!-- Message: row -->
+
+                                    </div>
+                                    <!-- Message: body -->
+                                </div>
+                                {% endif %}
+                                <!-- Message -->
                                 {% if message.from_admin == True %}
                                 <!-- Message -->
                                 <div class="message message-right">
@@ -775,19 +827,23 @@
                                                 <div class="media align-items-center">
                                                     <div class="media-body">
                                                         <p class="small text-muted mb-0">Phone</p>
-                                                        <p> - - </p>
+                                                        {% if users.phone != None %}
+                                                        <p>{{ users.phone }}</p>
+                                                        {% else %}
+                                                        <p>--</p>
+                                                        {% endif %}
                                                     </div>
-                                                    <i class="text-muted icon-sm fe-mic"></i>
+                                                    <i class="text-muted icon-sm fe-smartphone"></i>
                                                 </div>
                                             </li>
 
                                             <li class="list-group-item py-6">
                                                 <div class="media align-items-center">
                                                     <div class="media-body">
-                                                        <p class="small text-muted mb-0">Email</p>
+                                                        <p class="small text-muted mb-0">Заказ покупателя</p>
                                                         <p> - - </p>
                                                     </div>
-                                                    <i class="text-muted icon-sm fe-mail"></i>
+                                                    <i class="text-muted icon-sm fe-shopping-cart"></i>
                                                 </div>
                                             </li>
 

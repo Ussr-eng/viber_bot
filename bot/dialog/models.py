@@ -14,12 +14,18 @@ from bot import admin
 
 
 class User(Base):
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
     user_id = Column(String(100), nullable=False)
+    phone = Column(String(100), nullable=True)
     name = Column(String(100), nullable=False)
-    messages = relationship('ChatMessage', order_by="desc(ChatMessage.date_created)", backref=backref('owner', lazy=True))
+    last_name = Column(String(100), nullable=True)
+
+    messages = relationship('ChatMessage', order_by="desc(ChatMessage.date_created)",
+                            backref=backref('owner', lazy=True))
+    prom = relationship('Prom', backref=backref('owner', lazy=True))
 
     def __repr__(self):
         return 'Владелец сообщения %r' % self.name
@@ -36,16 +42,32 @@ class MyUser(ModelView):
 
 
 class ChatMessage(Base):
+
     __tablename__ = "chat_message"
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    message = Column(String(100), nullable=False)
+    message = Column(String(100), nullable=True)
+    image = Column(String(150), nullable=True, default='image.jpg')
     from_admin = Column(Boolean, unique=False, default=True)
     date_created = Column(DateTime(30), default=datetime.now, nullable=False)
 
     def __repr__(self):
         return '<ChatMessage %r>' % self.id
+
+
+class Prom(Base):
+
+    __tablename__ = "prom"
+
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user = relationship("User", back_populates="prom")
+
+    order_id = Column(String(400), nullable=True)
+    declaration_number = Column(String(150), nullable=True)
+    date_created = Column(DateTime(30), default=datetime.now, nullable=False)
 
 
 # admin.add_view(MyUser(User, Base.session, name='Пользователи'))

@@ -7,7 +7,7 @@
         <!-- Template core CSS -->
 
         <link href="{{url_for('static', filename='css/stylechat.css')}}" rel="stylesheet">
-
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 
     </head>
@@ -95,10 +95,14 @@
                                     <!-- Title -->
 
                                     <!-- Search -->
-
+                                    <div class="mb-6">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control form-control-lg" name="search_text" id="search_text"  placeholder="Поиск пользователей..." aria-label="Поиск пользователей...">
+                                        </div>
+                                    </div>
                                     <!-- Search -->
 
-                                    <!-- Favourites -->
+
                                     <div class="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
                                     {% if all_users != [] %}
                                     {% for user in all_users %}
@@ -110,18 +114,29 @@
                                         </a>
                                     {% endfor %}
                                     {% else %}
-
                                         <div class="input-group">
                                             <div  class="form-control form-control-lg"  aria-label="Search for messages or users...">
                                             <div class="input-group-append">
-
                                                 <h6 class="text-truncate mb-0 mr-auto">Все чаты исчерпали свой лимит по времени</h6>
                                             </div>
                                         </div>
                                         </div>
                                         {% endif %}
-
                                     </div>
+
+
+                                    <!-- ajax -->
+                                    <!-- ajax -->
+                                    <!-- ajax когда буду заниматься настройкой поиска пользователя нужно удалить весь верхний div class="text-center hide-scrollbar d-flex my-7"-->
+                                    <!-- а этот перенести в single_page  -->
+                                    <div id="result"  class="text-center hide-scrollbar d-flex my-7" data-horizontal-scroll="">
+                                    </div>
+                                    <!-- ajax -->
+                                    <!-- ajax -->
+                                    <!-- ajax -->
+
+                                    <!-- Favourites -->
+
                                     <!-- Favourites -->
 
                                     <!-- Chats -->
@@ -141,19 +156,30 @@
 
                                                         <div class="media-body overflow-hidden">
                                                             <div class="d-flex align-items-center mb-1">
+                                                                {% if user.last_name != None %}
+                                                                <h6 class="text-truncate mb-0 mr-auto">{{ user.name }} {{ user.last_name }}</h6>
+                                                                {% else %}
                                                                 <h6 class="text-truncate mb-0 mr-auto">{{ user.name }}</h6>
+                                                                {% endif %}
 
 
 
-                                                                <p class="small text-muted text-nowrap ml-4">{{ user.messages[0].date_created }}</p>
+                                                                <p class="small text-muted text-nowrap ml-4">{{ user.messages[0].date_created.strftime("%d, %H:%M") }}</p>
                                                             </div>
+                                                            {% if user.messages[0].message != None %}
                                                             <div class="text-truncate">{{ user.messages[0].message }}</div>
+                                                            {% else %}
+                                                            <div class="text-truncate">Photo message</div>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 </div>
+                                                {% if user.messages[0].from_admin == False %}
                                                 <div class="badge badge-circle badge-primary badge-border-light badge-top-right">
                                                     <span>1</span>
                                                 </div>
+                                                    {% else %}
+                                                {% endif %}
                                             </div>
                                         </a>
             <!-- Chat link -->          {% endfor %}
@@ -940,6 +966,33 @@
             timeout = setTimeout("location.reload(true);",600000);
             }
         </script>
+
+<!--        <script>-->
+<!--            $(document).ready(function(){-->
+<!--                load_data();-->
+<!--                function load_data(query)-->
+<!--                {-->
+<!--                    $.ajax({-->
+<!--                        url:"/ajaxlivesearch",-->
+<!--                        method:"POST",-->
+<!--                        data:{query:query},-->
+<!--                        success:function(data)-->
+<!--                        {-->
+<!--                            $('#result').html(data)-->
+<!--                            $('#result').append(data.htmlresponse);-->
+<!--                        }-->
+<!--                    });-->
+<!--                }-->
+<!--                $('#search_text').keyup(function(){-->
+<!--                    var search = $(this).val();-->
+<!--                    if(search != ''){-->
+<!--                        load_data(search);-->
+<!--                    }else{-->
+<!--                        load_data();-->
+<!--                    }-->
+<!--                });-->
+<!--            });-->
+<!--        </script>-->
         <script>
             var element = document.getElementById("scroll");
             element.scrollTop = element.scrollHeight;

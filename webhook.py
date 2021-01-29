@@ -1,11 +1,15 @@
 import requests
 import json
-auth_token = '4c9c7acc1e400fbe-266ea034c860abc6-b50342de6358d929' # тут ваш токен полученный в начале #п.2
+from configparser import ConfigParser
+config = ConfigParser()
+config.read('config.ini')
+
+auth_token = config['database']['main_token']
 hook = 'https://chatapi.viber.com/pa/set_webhook'
 headers = {'X-Viber-Auth-Token': auth_token}
 
 
-sen = dict(url='https://c177b129b117.ngrok.io',
+sen = dict(url=config['database']['host'],
            event_types = ["delivered", "seen", "failed", "subscribed", "unsubscribed", "conversation_started" ]
            , send_name=True, send_photo=True)
 # sen - это body запроса для отправки к backend серверов viber
@@ -17,8 +21,9 @@ r = requests.post(hook, json.dumps(sen), headers=headers)
 print(r.json())
 # в ответном print мы должны увидеть "status_message":"ok" - и это значит,
 #  что вебхук установлен
+
 sen = {
-    "receiver":"n0ei6dEH6Hwv2LCEQfmUMA==",
+    "receiver":"1gwYmkDPCCv0MqiBwy+t2A==",
     "type":"rich_media",
     "min_api_version":7,
     "rich_media":{

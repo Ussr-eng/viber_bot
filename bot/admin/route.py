@@ -1,10 +1,10 @@
 from flask import Flask, Response, request, jsonify, make_response, render_template, url_for, flash, session, redirect
 from flask_login import login_required, current_user, logout_user, login_user
-from bot import session
-from bot import app, viber, admin
+from bot import session, engine, connection, app, viber, admin
 from bot.dialog.models import User, ChatMessage
 from .forms import Chat, ManagerLoginForm
 from .models import Manager
+import requests
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
 import pprint
@@ -22,6 +22,14 @@ from viberbot.api.viber_requests import ViberMessageRequest
 from viberbot.api.viber_requests import ViberSubscribedRequest
 from viberbot.api.viber_requests import ViberUnsubscribedRequest
 import logging
+from configparser import ConfigParser
+config = ConfigParser()
+config.read('config.ini')
+
+
+auth_token = config['database']['main_token']
+hook = 'https://chatapi.viber.com/pa/send_message'
+headers = {'X-Viber-Auth-Token': auth_token}
 
 
 @app.route('/data/login', methods=['GET', 'POST'])
@@ -47,24 +55,37 @@ def manager_logout():
     return redirect(url_for('manager_login'))
 
 
+@app.route('/ajaxlivesearch', methods=['POST', 'GET'])
+def ajaxlivesearch():
+    if request.method == 'POST':
+        query = request.form.get('query')
+        search = "%{}%".format(query)
+        print(search)
+        if search != '%None%':
+            search_users = User.query.filter(User.name.like(search)).all()
+
+        else:
+            search_users = User.query.all()
+
+    return jsonify({'htmlresponse': render_template('chat/search_users.html', search_users=search_users)})
+
+
 @app.route('/data', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def data():
     # print(current_user.name)
     time = datetime.now() - timedelta(hours=24)
-    all_users = User.query.join(ChatMessage, User.id == ChatMessage.user_id).filter(ChatMessage.date_created > time)\
-        .all()
+    all_users = User.query.join(ChatMessage, User.id == ChatMessage.user_id).all()
 
     return render_template('chat/index.html', all_users=all_users)
 
 
 @app.route('/data/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def chat(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
-    all_users = User.query.join(ChatMessage, User.id == ChatMessage.user_id).filter(ChatMessage.date_created > time)\
-        .all()
+    all_users = User.query.join(ChatMessage, User.id == ChatMessage.user_id).all()
     print(all_users)
 
     users = session.query(User).filter_by(id=id).first()
@@ -89,7 +110,7 @@ def chat(id):
 
 
 @app.route('/data/copy-paste1/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def private_fop(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -97,12 +118,15 @@ def private_fop(id):
         .all()
     users = session.query(User).filter_by(id=id).first()
     messages = ChatMessage.query.filter_by(owner=users).all()
-    requisites = 'Приват ФОП: 4246001001336563 Мокрушин Кирилл.'
+    requisites = 'Приват ФОП: 4246001001336563 Мокрушин Кирилл.\n' \
+                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆'
     form.message.data = requisites
 
     if request.method == 'POST':
 
         message = ChatMessage(owner=users, message=form.message.data)
+
+        widget(id=users.user_id)
 
         session.add(message)
         session.commit()
@@ -117,7 +141,7 @@ def private_fop(id):
 
 
 @app.route('/data/copy-paste2/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def mono_bank(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -125,12 +149,15 @@ def mono_bank(id):
         .filter(ChatMessage.from_admin == False).all()
     users = session.query(User).filter_by(id=id).first()
     messages = ChatMessage.query.filter_by(owner=users).all()
-    requisites = 'МоноБанк: 5375414123101718 Мокрушин Кирилл.'
+    requisites = 'МоноБанк: 5375414123101718 Мокрушин Кирилл.\n' \
+                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆'
     form.message.data = requisites
 
     if request.method == 'POST':
 
         message = ChatMessage(owner=users, message=form.message.data)
+
+        widget(id=users.user_id)
 
         session.add(message)
         session.commit()
@@ -145,7 +172,7 @@ def mono_bank(id):
 
 
 @app.route('/data/copy-paste3/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def privat(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -153,15 +180,19 @@ def privat(id):
         .filter(ChatMessage.from_admin == False).all()
     users = session.query(User).filter_by(id=id).first()
     messages = ChatMessage.query.filter_by(owner=users).all()
-    requisites = 'Приват: 5168755905269185 Мокрушин Кирилл.'
+    requisites = 'Приват: 5168755905269185 Мокрушин Кирилл.\n' \
+                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆'
     form.message.data = requisites
 
     if request.method == 'POST':
 
         message = ChatMessage(owner=users, message=form.message.data)
 
+        widget(id=users.user_id)
+
         session.add(message)
         session.commit()
+
 
         viber_message = TextMessage(text=form.message.data)
 
@@ -172,9 +203,61 @@ def privat(id):
     return render_template('chat/single_page.html', all_users=all_users, users=users, messages=messages, form=form)
 
 
-@app.route('/sendmessage', methods=['GET', 'POST'])
-def sendmessage():
+@app.route('/reminder', methods=['GET', 'POST'])
+def reminder(id):
+    # payment reminder
+    user = session.query(User).filter_by(user_id=id).first()
+    images = session.query(ChatMessage).filter_by(owner=user).filter(ChatMessage.image != None).first()
+    print(images.image)
 
-    message = TextMessage(text='Ответ от админа, все работает!')
-    id = '1gwYmkDPCCv0MqiBwy+t2A=='
-    viber.send_messages(id, [message])
+    if images.image != 'image.jpg':
+        pass
+
+    else:
+        message = TextMessage(text='Напоминаем вам об оплате🙂\n'
+                                   '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆')
+        viber.send_messages(id, [message])
+
+        widget(id)
+
+
+@app.route('/widget', methods=['GET', 'POST'])
+def widget(id):
+    sen = {
+        "receiver": id,
+        "type": "rich_media",
+        "min_api_version": 7,
+        "rich_media": {
+            "Type": "rich_media",
+            "ButtonsGroupColumns": 6,
+            "ButtonsGroupRows": 4,
+            "BgColor": "#FFFFFF",
+            "Buttons": [
+                 {
+                    "Columns": 6,
+                    "Rows": 2,
+                    "ActionType": "reply",
+                    "ActionBody": "Скрин оплаты",
+                    "Text": "<font color=#8367db>Прикрепить скрин оплаты</font>",
+                    "TextSize": "small",
+                    "TextVAlign": "middle",
+                    "TextHAlign": "middle",
+                    "Image": "https://pngimg.com/uploads/buttons/buttons_PNG139.png"
+                 },
+                 {
+                    "Columns": 6,
+                    "Rows": 2,
+                    "ActionType": "reply",
+                    "ActionBody": "Время оплаты",
+                    "Text": "<font color=#8367db>Прикрепить время оплаты</font>",
+                    "TextSize": "small",
+                    "TextVAlign": "middle",
+                    "TextHAlign": "middle",
+                    "Image": "https://pngimg.com/uploads/buttons/buttons_PNG139.png"
+                 }
+            ]
+        }
+    }
+
+    r = requests.post(hook, json.dumps(sen), headers=headers)
+    print(r.json())
