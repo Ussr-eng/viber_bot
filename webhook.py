@@ -1,10 +1,11 @@
 import requests
 import json
+from bot import token
 from configparser import ConfigParser
 config = ConfigParser()
 config.read('config.ini')
 
-auth_token = config['database']['main_token']
+auth_token = token
 hook = 'https://chatapi.viber.com/pa/set_webhook'
 headers = {'X-Viber-Auth-Token': auth_token}
 

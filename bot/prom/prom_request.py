@@ -1,7 +1,7 @@
 from flask import Flask, Response, request, jsonify, make_response, url_for
 import requests
 import json
-from bot import session, app, viber, photos
+from bot import session, app, viber
 from bot.dialog.models import User, ChatMessage, Prom
 from bot.admin.route import reminder
 from bot.novaposhta.novaposhta_request import poshta_request
@@ -35,7 +35,7 @@ def check(id, board):
     startTime = time.time()
 
     headers = {'Authorization': 'Bearer {}'.format(config['database']['prom'])}
-    all_clients = requests.get('https://my.prom.ua/api/v1/orders/list?limit=150', headers=headers)
+    all_clients = requests.get('https://my.prom.ua/api/v1/orders/list?limit=100', headers=headers)
     # print(all_clients.json()['orders'][27])
 
     user = session.query(User).filter_by(user_id=id).first()
@@ -43,7 +43,7 @@ def check(id, board):
     order_id = None
     last_name = None
     declaration_number = None
-    for z in range(150):
+    for z in range(99):
         phone = (all_clients.json()['orders'][z]['phone'])
         if phone == '+38' + user.phone:
             last_name = (all_clients.json()['orders'][z]['client_last_name'])
@@ -78,12 +78,18 @@ def check(id, board):
             session.commit()
             print('declaration number add')
 
-    else:
+    elif order_id == None:
+
+        prom = Prom(owner=user,
+                    order_id=order_id)
+
+        session.add(prom)
+        session.commit()
 
         keyboard = KeyboardMessage(tracking_data='tracking_data',
                                    keyboard=board)
         message = TextMessage(text='По данному номеру не'
-                                   '\nнайдено никаких заказов⚠')
+                                   '\nнайдено никаких заказов❗')
         viber.send_messages(id, [
             message,
             keyboard

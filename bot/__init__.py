@@ -7,7 +7,6 @@ from viberbot import Api
 from viberbot.api.bot_configuration import BotConfiguration
 from flask_login import LoginManager
 from configparser import ConfigParser
-from flask_uploads import IMAGES, UploadSet, configure_uploads, patch_request_class
 import os
 from novaposhta import NovaPoshtaApi
 config = ConfigParser()
@@ -18,16 +17,12 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '99ehisip'
 
-engine = create_engine('sqlite:///viber_bot012.db', connect_args={'check_same_thread': False}, convert_unicode=True)
+engine = create_engine('sqlite:///viber_bot3.db', connect_args={'check_same_thread': False}, convert_unicode=True)
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 connection = engine.raw_connection()
 Base = declarative_base()
 Base.query = session.query_property()
 
-app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(basedir, 'static/images')
-photos = UploadSet('photos', IMAGES)
-configure_uploads(app, (photos))
-patch_request_class(app)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///viber_bot.db'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -44,12 +39,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'manager_login'
 login_manager.needs_refresh_message_category = 'denger'
-
+token = config['database']['main_token']
 
 bot_configuration = BotConfiguration(
     name='FullCup',
     avatar='https://i.ibb.co/wN5pM0B/photo-2021-01-18-20-00-23.jpg',
-    auth_token=config['database']['main_token']
+    auth_token=token
     )
 
 viber = Api(bot_configuration)

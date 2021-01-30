@@ -1,7 +1,7 @@
 from flask import Flask, Response, request, jsonify, make_response, url_for
 import requests
 import json
-from bot import session, app, viber, photos
+from bot import session, app, viber, token
 from .models import User, ChatMessage, Prom
 from bot.prom.prom_request import check, get_declaration
 from bot.novaposhta.novaposhta_request import poshta_request
@@ -30,7 +30,7 @@ config.read('config.ini')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-auth_token = config['database']['main_token']
+auth_token = token
 hook = 'https://chatapi.viber.com/pa/send_message'
 headers = {'X-Viber-Auth-Token': auth_token}
 
@@ -220,6 +220,7 @@ def incoming():
                     user = User(user_id=user_id,
                                 name=user_name,
                                 phone=user_message)
+                    print('!' + user.phone)
                     keyboard = KeyboardMessage(tracking_data='tracking_data',
                                                keyboard=KEYBOARD_START)
 
@@ -318,13 +319,12 @@ def incoming():
             elif message_user == "Статус заказа":
 
                 user = session.query(User).filter_by(user_id=viber_request.sender.id).first()
-                print('Номер телефона {}'.format(user.phone))
+                print(user.phone)
 
                 if user.phone:
 
                     order = session.query(Prom).filter_by(owner=user).first()
-                    print('Номер заказа {}'.format(order.order_id))
-
+                    print(order.order_id)
                     if order.order_id:
 
                         if order.declaration_number:
@@ -360,6 +360,7 @@ def incoming():
                     ])
 
             else:
+
                 user_id = viber_request.sender.id
                 user_name = viber_request.sender.name
                 user_message = message_user
@@ -385,7 +386,9 @@ def incoming():
                                                '\nномер должен иметь следующий вид:'
                                                '\n063*******'
                                                '\n098*******'
-                                               '\n067*******')
+                                               '\n067*******\n'
+                                               '\nЕсли же вы не делали заказ'
+                                               '\nпросто напишите 👉 Нет заказа')
                     viber.send_messages(viber_request.sender.id, [
                         message
 

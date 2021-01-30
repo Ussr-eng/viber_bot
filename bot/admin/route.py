@@ -1,6 +1,6 @@
 from flask import Flask, Response, request, jsonify, make_response, render_template, url_for, flash, session, redirect
 from flask_login import login_required, current_user, logout_user, login_user
-from bot import session, engine, connection, app, viber, admin
+from bot import session, engine, connection, app, viber, admin, token
 from bot.dialog.models import User, ChatMessage
 from .forms import Chat, ManagerLoginForm
 from .models import Manager
@@ -27,7 +27,7 @@ config = ConfigParser()
 config.read('config.ini')
 
 
-auth_token = config['database']['main_token']
+auth_token = token
 hook = 'https://chatapi.viber.com/pa/send_message'
 headers = {'X-Viber-Auth-Token': auth_token}
 
@@ -103,6 +103,7 @@ def chat(id):
         viber_message = TextMessage(text=form_message)
 
         viber.send_messages(users.user_id, [viber_message])
+        keyboard_back(user_id=users.user_id)
 
         return redirect(request.url)
 
@@ -134,6 +135,7 @@ def private_fop(id):
         viber_message = TextMessage(text=form.message.data)
 
         viber.send_messages(users.user_id, [viber_message])
+        keyboard_back(user_id=users.user_id)
 
         return redirect(url_for('chat', id=id))
 
@@ -165,6 +167,7 @@ def mono_bank(id):
         viber_message = TextMessage(text=form.message.data)
 
         viber.send_messages(users.user_id, [viber_message])
+        keyboard_back(user_id=users.user_id)
 
         return redirect(url_for('chat', id=id))
 
@@ -193,10 +196,10 @@ def privat(id):
         session.add(message)
         session.commit()
 
-
         viber_message = TextMessage(text=form.message.data)
 
         viber.send_messages(users.user_id, [viber_message])
+        keyboard_back(user_id=users.user_id)
 
         return redirect(url_for('chat', id=id))
 
@@ -219,6 +222,7 @@ def reminder(id):
         viber.send_messages(id, [message])
 
         widget(id)
+        keyboard_back(user_id=id)
 
 
 @app.route('/widget', methods=['GET', 'POST'])
@@ -261,3 +265,29 @@ def widget(id):
 
     r = requests.post(hook, json.dumps(sen), headers=headers)
     print(r.json())
+
+
+def keyboard_back(user_id):
+
+    KEYBOARD_BACK = {
+        "Type": "keyboard",
+        "Buttons": [{
+            "Columns": 6,
+            "Rows": 1,
+            "Text": "<font color=\"#494E67\">Главное меню</font><br>",
+            "TextSize": "medium",
+            "TextHAlign": "center",
+            "TextVAlign": "bottom",
+            "ActionType": "reply",
+            "ActionBody": "Назад",
+            "BgColor": "#fef8eb",
+            "Image": "https://i.postimg.cc/VsDKccQ6/back.jpg"
+        }]
+    }
+
+    keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
+
+    viber.send_messages(user_id, [
+        keyboard
+
+    ])
