@@ -19,7 +19,6 @@ Mako==1.1.3
 MarkupSafe==1.1.1
 novaposhta-api-client @ git+https://github.com/semolex/novaposhta-api-client@8dd77ed29e6bb0ef3c7b931f79e33e3d99f55117
 numpy==1.19.5
-pandas==1.2.1
 psycopg2==2.8.6
 pycparser==2.20
 pycryptodome==3.9.9
