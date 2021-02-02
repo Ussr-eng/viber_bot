@@ -71,7 +71,7 @@ def ajaxlivesearch():
 
 
 @app.route('/data', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def data():
     # print(current_user.name)
     time = datetime.now() - timedelta(hours=24)
@@ -81,7 +81,7 @@ def data():
 
 
 @app.route('/data/<int:id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def chat(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -217,11 +217,11 @@ def reminder(id):
         pass
 
     else:
+        widget(id)
         message = TextMessage(text='Напоминаем вам об оплате🙂\n'
                                    '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆')
         viber.send_messages(id, [message])
 
-        widget(id)
         keyboard_back(user_id=id)
 
 

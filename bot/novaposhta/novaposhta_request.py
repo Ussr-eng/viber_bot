@@ -5,6 +5,7 @@ from bot import session, app, viber, client
 from viberbot.api.messages.text_message import TextMessage
 from viberbot.api.messages import VideoMessage, ContactMessage, KeyboardMessage, PictureMessage, RichMediaMessage, \
     FileMessage
+from threading import Timer
 from viberbot.api.viber_requests import ViberConversationStartedRequest
 from viberbot.api.viber_requests import ViberFailedRequest
 from viberbot.api.viber_requests import ViberMessageRequest
@@ -53,3 +54,56 @@ def poshta_request(id, declaration_number, board):
     ])
 
 
+def mailing_np_status(declaration_number, user_id, board):
+
+    r = client.internet_document.get_status_documents(declaration_number)
+    status_code = r.json()['data'][0]['StatusCode']
+    print(status_code)
+
+    if status_code == '4' or status_code == '5' or status_code == '6' \
+            or status_code == '7' or status_code == '8':
+
+        keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=board)
+        message = TextMessage(text='🥳Ваш заказ отправлен🥳\n'
+                                   'Номер посылки - {}'.format(declaration_number))
+        viber.send_messages(user_id, [
+            message,
+            keyboard
+        ])
+
+    elif status_code == '2' or status_code == '9' or status_code == '10' or status_code == '11' or status_code == '102'\
+            or status_code == '103' or status_code == '108' or status_code == '106' or status_code == '105':
+
+        pass
+
+    else:
+
+        schedule = Timer(10000.0, mailing_np_status, [declaration_number, user_id, board])
+        schedule.start()
+
+
+def mailing_np(declaration_number, user_id, board):
+
+    r = client.internet_document.get_status_documents(declaration_number)
+    status_code = r.json()['data'][0]['StatusCode']
+    print(status_code)
+
+    if status_code == '9' or status_code == '10' or status_code == '11' or status_code == '106':
+
+        keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=board)
+        message = TextMessage(text='Спасибо за покупку, напишите ваш отзыв'
+                                   '👉 https://zzapravka.com.ua/testimonials')
+        viber.send_messages(user_id, [
+            message,
+            keyboard
+        ])
+
+    elif status_code == '2' or status_code == '102' or status_code == '103' or status_code == '108'\
+            or status_code == '105':
+
+        pass
+
+    else:
+
+        schedule = Timer(10000.0, mailing_np, [declaration_number, user_id, board])
+        schedule.start()

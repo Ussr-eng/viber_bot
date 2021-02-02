@@ -17,7 +17,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '99ehisip'
 
-engine = create_engine('sqlite:///viber_bot3.db', connect_args={'check_same_thread': False}, convert_unicode=True)
+engine = create_engine('sqlite:///viber_bot012.db', connect_args={'check_same_thread': False}, convert_unicode=True)
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 connection = engine.raw_connection()
 Base = declarative_base()
@@ -39,6 +39,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'manager_login'
 login_manager.needs_refresh_message_category = 'denger'
+
+# viberbot token
 token = config['database']['main_token']
 
 bot_configuration = BotConfiguration(

@@ -1,6 +1,7 @@
 from flask import Flask, Response, request, jsonify, make_response, url_for
 import requests
 import json
+from datetime import time, date, datetime
 from bot import session, app, viber, token
 from .models import User, ChatMessage, Prom
 from bot.prom.prom_request import check, get_declaration
@@ -8,7 +9,6 @@ from bot.novaposhta.novaposhta_request import poshta_request
 import secrets, os
 import json
 import uuid
-import datetime
 from viberbot.api.bot_configuration import BotConfiguration
 from viberbot.api.messages import VideoMessage
 from viberbot.api.messages.text_message import TextMessage
@@ -20,7 +20,6 @@ from viberbot.api.viber_requests import ViberMessageRequest
 from viberbot.api.viber_requests import ViberSubscribedRequest
 from viberbot.api.viber_requests import ViberUnsubscribedRequest
 from threading import Timer
-import time
 import logging
 from configparser import ConfigParser
 config = ConfigParser()
@@ -68,6 +67,17 @@ def incoming():
             "TextVAlign": "bottom",
             "ActionType": "reply",
             "ActionBody": "Частые вопросы",
+            "BgColor": "#fef8eb",
+            "Image": "https://i.postimg.cc/VsDKccQ6/back.jpg"
+        }, {
+            "Columns": 6,
+            "Rows": 1,
+            "Text": "<font color=\"#494E67\">Изменить/добавить номер</font>",
+            "TextSize": "medium",
+            "TextHAlign": "center",
+            "TextVAlign": "bottom",
+            "ActionType": "reply",
+            "ActionBody": "Изменить/добавить номер",
             "BgColor": "#fef8eb",
             "Image": "https://i.postimg.cc/VsDKccQ6/back.jpg"
         }, {
@@ -150,7 +160,6 @@ def incoming():
         }]
     }
 
-
     logging.basicConfig(filename="logfile.log", level=logging.INFO)
     logging.debug("This is debug message")
 
@@ -190,13 +199,31 @@ def incoming():
 
                 if sender:
 
-                    keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_START)
-                    message = TextMessage(text='Выберете интересующую вас опцию')
-                    viber.send_messages(viber_request.sender.id, [
-                        message,
-                        keyboard
-                    ])
-                    print(viber_request.sender.id)
+                    if len(message_user) == 10 and message_user.isdecimal():
+
+                        sender.phone = message_user
+                        session.commit()
+
+                        keyboard = KeyboardMessage(tracking_data='tracking_data',
+                                                   keyboard=KEYBOARD_START)
+                        message = TextMessage(text='Номер {} добавлен!'.format(sender.phone))
+                        viber.send_messages(viber_request.sender.id, [
+                            message,
+                            keyboard
+                        ])
+
+                        check(id=user_id, board=KEYBOARD_START)
+
+                    else:
+
+                        keyboard = KeyboardMessage(tracking_data='tracking_data',
+                                                   keyboard=KEYBOARD_START)
+
+                        message = TextMessage(text='Выберете интересующую вас опцию')
+                        viber.send_messages(user_id, [
+                            message,
+                            keyboard
+                        ])
 
                 elif message_user == 'Нет заказа':
 
@@ -237,12 +264,59 @@ def incoming():
 
             elif message_user == "Свяжитесь со мной":
 
-                keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
-                message = TextMessage(text='Будем рады вам помочь🔥\nЗадайте Ваш вопрос👇')
-                viber.send_messages(viber_request.sender.id, [
-                    message,
-                    keyboard
-                ])
+                today = datetime.now()
+                day_of_week = today.weekday()
+                time_now = today.time()
+
+                print(time(9))
+                print(time_now)
+
+                sender = session.query(User).filter_by(user_id=viber_request.sender.id).first()
+
+                message = ChatMessage(message=message_user,
+                                      owner=sender,
+                                      from_admin=False)
+                session.add(message)
+                session.commit()
+
+                if time_now < time(9) or time_now > time(18) and day_of_week in [0, 1, 2, 3, 4]:
+
+                    keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_START)
+                    message = TextMessage(text='Зараз компанія не може відповісти на повідомлення,'
+                                               'оскільки за її графіком роботи зараз не робочий час.'
+                                               'Ми відповімо вам в найближчий робочий день.'
+                                               '\n🍏Графік роботи:'
+                                               '\nПн-пт: 9:00-18:00'
+                                               '\nСб-вс: 9:00-16:00')
+                    viber.send_messages(viber_request.sender.id, [
+                        message,
+                        keyboard
+                    ])
+
+                elif time(9) > time_now or time(16) < time_now and day_of_week in [5, 6]:
+
+                    keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_START)
+                    message= TextMessage(text='Зараз компанія не може відповісти на повідомлення,'
+                                              'оскільки за її графіком роботи зараз не робочий час.'
+                                              'Ми відповімо вам в найближчий робочий день.'
+                                              '\n🍏Графік роботи:'
+                                              '\nПн-пт: 9:00-18:00'
+                                              '\nСб-вс: 9:00-16:00')
+
+                    viber.send_messages(viber_request.sender.id, [
+                        message,
+                        keyboard
+                    ])
+
+                else:
+
+                    keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
+                    message = TextMessage(text='Будем рады вам помочь🔥\nЗадайте Ваш вопрос👇')
+                    viber.send_messages(viber_request.sender.id, [
+                        message,
+                        keyboard
+                    ])
+
             elif message_user == "Скрин оплаты":
 
                 keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
@@ -256,6 +330,20 @@ def incoming():
 
                 keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
                 message = TextMessage(text='Отправьте время оплаты👇🙂')
+                viber.send_messages(viber_request.sender.id, [
+                    message,
+                    keyboard
+                ])
+
+            elif message_user == "Изменить/добавить номер":
+
+                keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
+                message = TextMessage(text='Введите ваш номер👇\nФормат записи должен соответствовать примеру:'
+                                           '\n067*******'
+                                           '\n063*******'
+                                           '\n097*******'
+                                           '\nУспех операции можно определить по следующей надписи:'
+                                           '\n"Номер добавлен!"🙂')
                 viber.send_messages(viber_request.sender.id, [
                     message,
                     keyboard
@@ -323,7 +411,7 @@ def incoming():
 
                 if user.phone:
 
-                    order = session.query(Prom).filter_by(owner=user).first()
+                    order = session.query(Prom).filter_by(owner=user).order_by(Prom.id.desc()).first()
                     print(order.order_id)
                     if order.order_id:
 
@@ -382,6 +470,7 @@ def incoming():
                     print('add message')
 
                 else:
+
                     message = TextMessage(text='⚠️Введенный вами текст не соответствует номеру телефона'
                                                '\nномер должен иметь следующий вид:'
                                                '\n063*******'

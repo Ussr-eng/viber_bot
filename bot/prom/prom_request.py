@@ -4,7 +4,7 @@ import json
 from bot import session, app, viber
 from bot.dialog.models import User, ChatMessage, Prom
 from bot.admin.route import reminder
-from bot.novaposhta.novaposhta_request import poshta_request
+from bot.novaposhta.novaposhta_request import poshta_request, mailing_np, mailing_np_status
 import secrets, os
 import json
 import uuid
@@ -62,6 +62,8 @@ def check(id, board):
 
         schedule = Timer(172800.0, reminder, [id])
         schedule.start()
+
+        mailing_prom(order_id=order_id, user_id=id, board_start=board)
 
         if last_name != '':
 
@@ -126,3 +128,27 @@ def get_declaration(order_id, board, user_id):
         ])
 
     print(time.time() - startTime)
+
+
+def mailing_prom(order_id, user_id, board_start):
+
+    headers = {'Authorization': 'Bearer {}'.format(config['database']['prom'])}
+    client = requests.get('https://my.prom.ua/api/v1/orders/{}'.format(order_id), headers=headers)
+    declaration_number = client.json()['order']['delivery_provider_data']['declaration_number']
+    print(True)
+
+    if declaration_number != None:
+
+        order = session.query(Prom).filter_by(order_id=order_id).first()
+        order.declaration_number = declaration_number
+        session.commit()
+
+        mailing_np(declaration_number=declaration_number, user_id=user_id, board=board_start)
+        mailing_np_status(declaration_number=declaration_number, user_id=user_id, board=board_start)
+        print(True)
+
+    else:
+
+        schedule = Timer(100400.0, mailing_prom, [order_id, user_id, board_start])
+        schedule.start()
+        print(False)
