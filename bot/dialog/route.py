@@ -127,7 +127,7 @@ def incoming():
         "Buttons": [{
             "Columns": 6,
             "Rows": 1,
-            "Text": "<font color=\"#494E67\">⬅</font><br>",
+            "Text": "<font color=\"#494E67\">Действия</font><br>",
             "TextSize": "medium",
             "TextHAlign": "center",
             "TextVAlign": "bottom",
