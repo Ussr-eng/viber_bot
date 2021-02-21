@@ -1,14 +1,15 @@
 from flask import Flask, Response, request, jsonify, make_response, render_template, url_for, flash, session, redirect
 from flask_login import login_required, current_user, logout_user, login_user
 from bot import session, engine, connection, app, viber, admin, token
-from bot.dialog.models import User, ChatMessage
+from bot.dialog.models import User, ChatMessage, Prom
+from bot.novaposhta.novaposhta_request import colors_chat
 from .forms import Chat, ManagerLoginForm
 from .models import Manager
 import requests
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
 import pprint
-
+from threading import Timer
 import json
 from datetime import datetime, timedelta
 from viberbot.api.bot_configuration import BotConfiguration
@@ -70,8 +71,37 @@ def ajaxlivesearch():
     return jsonify({'htmlresponse': render_template('chat/search_users.html', search_users=search_users)})
 
 
+@app.route("/insert", methods=['POST', 'GET'])
+def insert():
+    if request.method == 'POST':
+        get_id = request.form.get('query')
+
+        if get_id == None:
+            pass
+
+        elif 'not' in get_id:
+            get_id = get_id.split()
+            print(get_id[0])
+            prom = session.query(Prom).filter_by(user_id=get_id[0]).order_by(Prom.id.desc()).first()
+            prom.status = 'waiting payment'
+            session.commit()
+            print(False)
+            msg = True
+
+        else:
+            prom = session.query(Prom).filter_by(user_id=get_id).order_by(Prom.id.desc()).first()
+            prom.status = 'confirm payment'
+            session.commit()
+            message_text(get_id, 'Оплату проверили, готовим посылку к отправке☺')
+            colors_chat(prom.id)
+            msg = True
+
+
+    return jsonify(msg)
+
+
 @app.route('/data', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def data():
     # print(current_user.name)
     time = datetime.now() - timedelta(hours=24)
@@ -81,7 +111,7 @@ def data():
 
 
 @app.route('/data/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def chat(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -89,12 +119,11 @@ def chat(id):
     print(all_users)
 
     users = session.query(User).filter_by(id=id).first()
+    prom = session.query(Prom).filter_by(user_id=id).first()
     messages = ChatMessage.query.filter_by(owner=users).all()
 
     if request.method == 'POST':
-
         form_message = form.message.data
-
         message = ChatMessage(owner=users, message=form_message)
 
         session.add(message)
@@ -107,11 +136,12 @@ def chat(id):
 
         return redirect(request.url)
 
-    return render_template('chat/single_page.html', all_users=all_users, users=users, messages=messages, form=form)
+    return render_template('chat/single_page.html', all_users=all_users, users=users,
+                           messages=messages, prom=prom, form=form)
 
 
 @app.route('/data/copy-paste1/<int:id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def private_fop(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -119,23 +149,26 @@ def private_fop(id):
         .all()
     users = session.query(User).filter_by(id=id).first()
     messages = ChatMessage.query.filter_by(owner=users).all()
+    prom = session.query(Prom).filter_by(user_id=id).order_by(Prom.id.desc()).first()
     requisites = 'Приват ФОП: 4246001001336563 Мокрушин Кирилл.\n' \
-                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆'
+                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆\n' \
+                 '\n❗Чтобы отменить заказ напишите👉"Отмена заказа"'
     form.message.data = requisites
 
     if request.method == 'POST':
 
         message = ChatMessage(owner=users, message=form.message.data)
-
-        widget(id=users.user_id)
-
+        prom.status = 'waiting payment'
         session.add(message)
         session.commit()
 
+        widget(id=users.user_id)
         viber_message = TextMessage(text=form.message.data)
-
         viber.send_messages(users.user_id, [viber_message])
         keyboard_back(user_id=users.user_id)
+
+        schedule = Timer(172800.0, reminder, [id])
+        schedule.start()
 
         return redirect(url_for('chat', id=id))
 
@@ -143,7 +176,7 @@ def private_fop(id):
 
 
 @app.route('/data/copy-paste2/<int:id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def mono_bank(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -151,23 +184,26 @@ def mono_bank(id):
         .filter(ChatMessage.from_admin == False).all()
     users = session.query(User).filter_by(id=id).first()
     messages = ChatMessage.query.filter_by(owner=users).all()
+    prom = session.query(Prom).filter_by(user_id=id).order_by(Prom.id.desc()).first()
     requisites = 'МоноБанк: 5375414123101718 Мокрушин Кирилл.\n' \
-                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆'
+                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆\n' \
+                 '\n❗Чтобы отменить заказ напишите👉"Отмена заказа"'
     form.message.data = requisites
 
     if request.method == 'POST':
 
         message = ChatMessage(owner=users, message=form.message.data)
-
-        widget(id=users.user_id)
-
+        prom.status = 'waiting payment'
         session.add(message)
         session.commit()
 
+        widget(id=users.user_id)
         viber_message = TextMessage(text=form.message.data)
-
         viber.send_messages(users.user_id, [viber_message])
         keyboard_back(user_id=users.user_id)
+
+        schedule = Timer(172800.0, reminder, [id])
+        schedule.start()
 
         return redirect(url_for('chat', id=id))
 
@@ -175,7 +211,7 @@ def mono_bank(id):
 
 
 @app.route('/data/copy-paste3/<int:id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def privat(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -183,23 +219,26 @@ def privat(id):
         .filter(ChatMessage.from_admin == False).all()
     users = session.query(User).filter_by(id=id).first()
     messages = ChatMessage.query.filter_by(owner=users).all()
+    prom = session.query(Prom).filter_by(user_id=id).order_by(Prom.id.desc()).first()
     requisites = 'Приват: 5168755905269185 Мокрушин Кирилл.\n' \
-                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆'
+                 '\nЧтобы отправить скрин оплаты нажмите на кнопку выше👆\n' \
+                 '\n❗Чтобы отменить заказ напишите👉"Отмена заказа"'
     form.message.data = requisites
 
     if request.method == 'POST':
 
         message = ChatMessage(owner=users, message=form.message.data)
-
-        widget(id=users.user_id)
-
+        prom.status = 'waiting payment'
         session.add(message)
         session.commit()
 
+        widget(id=users.user_id)
         viber_message = TextMessage(text=form.message.data)
-
         viber.send_messages(users.user_id, [viber_message])
         keyboard_back(user_id=users.user_id)
+
+        schedule = Timer(172800.0, reminder, [id])
+        schedule.start()
 
         return redirect(url_for('chat', id=id))
 
@@ -223,6 +262,14 @@ def reminder(id):
         viber.send_messages(id, [message])
 
         keyboard_back(user_id=id)
+
+
+def message_text(user, message):
+
+    user = session.query(User).filter_by(id=user).first()
+    viber_message = TextMessage(text=message)
+    viber.send_messages(user.user_id, [viber_message])
+    keyboard_back(user_id=user.user_id)
 
 
 @app.route('/widget', methods=['GET', 'POST'])
@@ -274,7 +321,7 @@ def keyboard_back(user_id):
         "Buttons": [{
             "Columns": 6,
             "Rows": 1,
-            "Text": "<font color=\"#494E67\">Главное меню</font><br>",
+            "Text": "<font color=\"#494E67\">Действия</font><br>",
             "TextSize": "medium",
             "TextHAlign": "center",
             "TextVAlign": "bottom",

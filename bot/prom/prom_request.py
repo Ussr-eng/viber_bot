@@ -3,7 +3,6 @@ import requests
 import json
 from bot import session, app, viber
 from bot.dialog.models import User, ChatMessage, Prom
-from bot.admin.route import reminder
 from bot.novaposhta.novaposhta_request import poshta_request, mailing_np, mailing_np_status
 import secrets, os
 import json
@@ -59,9 +58,6 @@ def check(id, board):
         session.add(prom)
         session.commit()
         print('id заказа добавлен')
-
-        schedule = Timer(172800.0, reminder, [id])
-        schedule.start()
 
         mailing_prom(order_id=order_id, user_id=id, board_start=board)
 

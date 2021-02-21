@@ -9,6 +9,7 @@ from threading import Timer
 from viberbot.api.viber_requests import ViberConversationStartedRequest
 from viberbot.api.viber_requests import ViberFailedRequest
 from viberbot.api.viber_requests import ViberMessageRequest
+from bot.dialog.models import Prom
 
 
 def poshta_request(id, declaration_number, board):
@@ -106,4 +107,33 @@ def mailing_np(declaration_number, user_id, board):
     else:
 
         schedule = Timer(10000.0, mailing_np, [declaration_number, user_id, board])
+        schedule.start()
+
+
+def colors_chat(prom_id):
+    prom = session.query(Prom).filter_by(id=prom_id).first()
+
+    if prom.declaration_number != None:
+        r = client.internet_document.get_status_documents(prom.declaration_number)
+        status_code = r.json()['data'][0]['StatusCode']
+        print(status_code)
+
+        if status_code == '9' or status_code == '10' or status_code == '11':
+            # 'Отправление получено'
+            prom.status = 'success'
+            session.commit()
+
+        elif status_code == '102' or status_code == '103' or status_code == '108':
+            # 'Отмена получателя'
+            prom.status = 'buyer refusal'
+            session.commit()
+
+        else:
+
+            schedule = Timer(5000.0, colors_chat, [prom_id])
+            schedule.start()
+
+    else:
+
+        schedule = Timer(20000.0, colors_chat, [prom_id])
         schedule.start()

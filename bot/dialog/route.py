@@ -143,14 +143,22 @@ def incoming():
 
     if isinstance(viber_request, ViberConversationStartedRequest):
 
-        viber.send_messages(viber_request.user.id, [
-            TextMessage(text="Напишите 👉 ваш номер телефона 📱"
-                             "\nна который был оформлен заказ"
-                             "\nв нашем магазине🛍️"
-                             "\nПример записи: 063*******\n"
-                             "\nЕсли же вы не делали заказ"
-                             "\nпросто напишите 👉 Нет заказа"),
-        ])
+        request_user = User.query.filter_by(user_id=viber_request.user.id).first()
+
+        if request_user:
+            viber.send_messages(viber_request.user.id, [
+                TextMessage(text="🎉Мы рады что вы к нам вернулись🎉 Напишите 👉 Начать"),
+            ])
+
+        else:
+            viber.send_messages(viber_request.user.id, [
+                TextMessage(text="Напишите 👉 ваш номер телефона 📱"
+                                 "\nна который был оформлен заказ"
+                                 "\nв нашем магазине🛍️"
+                                 "\nПример записи: 063*******\n"
+                                 "\nЕсли же вы не делали заказ"
+                                 "\nпросто напишите 👉 Нет заказа"),
+            ])
 
     if isinstance(viber_request, ViberMessageRequest):
 
@@ -167,7 +175,7 @@ def incoming():
             message_user = viber_request.message.text
 
             if len(message_user) == 10 and message_user.isdecimal() \
-                    or message_user == 'Назад' or message_user == 'Нет заказа':
+                    or message_user == 'Назад' or message_user == 'Нет заказа' or message_user == 'Начать':
                 # user_data = viber.get_user_details(viber_request.sender.id)
 
                 user_id = viber_request.sender.id
@@ -297,6 +305,19 @@ def incoming():
                         message,
                         keyboard
                     ])
+
+            elif message_user == "Отмена заказа":
+                user = session.query(User).filter_by(user_id=viber_request.sender.id).first()
+                prom = session.query(Prom).filter_by(user_id=user.id).order_by(Prom.id.desc()).first()
+                prom.status = 'canceling'
+                session.commit()
+
+                keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
+                message = TextMessage(text='Вы отменили свой заказ❗')
+                viber.send_messages(viber_request.sender.id, [
+                    message,
+                    keyboard
+                ])
 
             elif message_user == "Скрин оплаты":
 
@@ -431,7 +452,7 @@ def incoming():
                     keyboard = KeyboardMessage(tracking_data='tracking_data', keyboard=KEYBOARD_BACK)
 
                     message = TextMessage(text='Вы не ввели номер телефона, но вы можете его добавить\n'
-                                               'просто напишите его👇🙂')
+                                               'просто напишите его👇🙂 пример:063*******')
                     viber.send_messages(viber_request.sender.id, [
                         message,
                         keyboard

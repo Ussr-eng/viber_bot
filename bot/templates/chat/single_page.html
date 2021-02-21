@@ -7,7 +7,7 @@
         <!-- Template core CSS -->
 
         <link href="{{url_for('static', filename='css/stylechat.css')}}" rel="stylesheet">
-
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 
     </head>
@@ -128,12 +128,31 @@
                                     <!-- Favourites -->
 
                                     <!-- Chats -->
-                                    <nav class="nav d-block list-discussions-js mb-n6">
+                                    <nav id="reload" class="nav d-block list-discussions-js mb-n6">
                                         <!-- Chat link -->
-                                    {% if all_users != [] %}
-                                        {% for user in all_users %}
+                                        {% if all_users != [] %}
+                                            {% for user in all_users %}
                                         <a class="text-reset nav-link p-0 mb-6" onclick="resetTimeout();" href="{{ url_for('chat', id=user.id ) }}">
-                                            <div class="card card-active-listener">
+
+                                            <div class="card card-active-listener" style="{% if user.prom[0].status == None %}
+                                                                                                background-color: #fff;
+                                                                                          {% endif %}
+                                                                                          {% if user.prom[0].status == 'waiting payment' %}
+                                                                                                background-color: #52ade947;
+                                                                                          {% endif %}
+                                                                                          {% if user.prom[0].status == 'confirm payment' %}
+                                                                                                background-color: #f7d80059;
+                                                                                          {% endif %}
+                                                                                          {% if user.prom[0].status == 'success' %}
+                                                                                                background-color: #72d41a85;
+                                                                                          {% endif %}
+                                                                                          {% if user.prom[0].status == 'buyer refusal' %}
+                                                                                                background-color: #ff000052;
+                                                                                          {% endif %}
+                                                                                          {% if user.prom[0].status == 'canceling' %}
+                                                                                                background-color: #0606065c;
+                                                                                          {% endif %}">
+
                                                 <div class="card-body">
 
                                                     <div class="media">
@@ -836,19 +855,29 @@
                                                     <i class="text-muted icon-sm fe-smartphone"></i>
                                                 </div>
                                             </li>
-
+                                            {% if users.prom[0].status != None %}
                                             <li class="list-group-item py-6">
                                                 <div class="media align-items-center">
                                                     <div class="media-body">
-                                                        <p class="small text-muted mb-0">Заказ покупателя</p>
-                                                        <p> - - </p>
+                                                        <p class="small text-muted mb-0">Подтвердить оплату</p>
+                                                        <p><input type="checkbox" id="isGet_value" name="get_value" value="{{users.id}}" style="width: 20; height: 20;"
+
+                                                         {% if users.prom[0].status == 'waiting payment' %}
+                                                         {% else %}
+                                                          checked
+                                                         {% endif %}></p>
                                                     </div>
-                                                    <i class="text-muted icon-sm fe-shopping-cart"></i>
+                                                    <i class="text-muted icon-sm fe-smartphone"></i>
                                                 </div>
                                             </li>
+                                            {% endif %}
 
-
+<!--                                        <div class="col">-->
+<!--                                            <button class="btn btn-lg btn-block btn-basic d-flex align-items-center" id="submit" name="submit" type="button" style="background-color: #44da6133;">Сохранить изменения</button>-->
+<!--                                        </div>-->
                                         </ul>
+
+
 
                                         <ul class="list-group list-group-flush">
 
@@ -1187,6 +1216,63 @@
             </div>
         </div>
         <!-- Modal: Invite friends -->
+        <script>
+            $(document).ready(function(){
+                load_data();
+                function load_data(query)
+                {
+                    $.ajax({
+                        url:"/insert",
+                        method:"POST",
+                        data:{query:query},
+                        success:function()
+                        {
+                            $("#reload").load(" #reload");
+                        }
+                    });
+                }
+                var insert_st = {{ users.id }} + ' not';
+                $('#isGet_value').change(function() {
+                    if($(this.checked).length) {
+                        load_data({{ users.id }});
+                    }else{
+                        load_data(insert_st);
+                    }
+                });
+            });
+        </script>
+<!--        <script>-->
+<!--            $(document).ready(function() {-->
+<!--                $('#submit').click(function() {-->
+<!--                    var insert = [];-->
+<!--                    $('.get_value').each(function() {-->
+<!--                        if ($(this).is(":checked")) {-->
+<!--                            insert.push($(this).val());-->
+<!--                        }-->
+<!--                    });-->
+<!--                    insert = insert.toString();-->
+<!--                    inse = {{ users.id }} + ' not';-->
+<!--                    var insert_string = 'checkboxvalue='+insert;-->
+<!--                    var insert_st = 'checkboxvalue='+inse;-->
+<!--                    if ( insert.length > 0 ){-->
+<!--                        $.ajax({-->
+<!--                            method: "POST",-->
+<!--                            url: "/insert",-->
+<!--                            data: insert_string,-->
+<!--                            cache: false,-->
+<!--                        });-->
+<!--                    }else{-->
+<!--                        $.ajax({-->
+<!--                            method: "POST",-->
+<!--                            url: "/insert",-->
+<!--                            data: insert_st,-->
+<!--                            cache: false,-->
+<!--                        });-->
+<!--                    }-->
+<!--                });-->
+<!--            });-->
+
+<!--        </script>-->
         <script>
             var element = document.getElementById("scroll");
             element.scrollTop = element.scrollHeight;

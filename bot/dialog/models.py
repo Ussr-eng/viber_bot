@@ -12,7 +12,6 @@ from flask_admin.contrib.sqla import ModelView
 from bot import admin
 
 
-
 class User(Base):
 
     __tablename__ = "users"
@@ -25,7 +24,8 @@ class User(Base):
 
     messages = relationship('ChatMessage', order_by="desc(ChatMessage.date_created)",
                             backref=backref('owner', lazy=True))
-    prom = relationship('Prom', backref=backref('owner', lazy=True))
+    prom = relationship('Prom', order_by="desc(Prom.date_created)",
+                        backref=backref('owner', lazy=True))
 
     def __repr__(self):
         return 'Владелец сообщения %r' % self.name
@@ -65,6 +65,7 @@ class Prom(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     user = relationship("User", back_populates="prom")
 
+    status = Column(String(100), default=None)
     order_id = Column(String(400), nullable=True)
     declaration_number = Column(String(150), nullable=True)
     date_created = Column(DateTime(30), default=datetime.now, nullable=False)
