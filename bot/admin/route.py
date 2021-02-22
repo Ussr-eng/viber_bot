@@ -96,7 +96,6 @@ def insert():
             colors_chat(prom.id)
             msg = True
 
-
     return jsonify(msg)
 
 
@@ -141,7 +140,7 @@ def chat(id):
 
 
 @app.route('/data/copy-paste1/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def private_fop(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -176,7 +175,7 @@ def private_fop(id):
 
 
 @app.route('/data/copy-paste2/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def mono_bank(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -211,7 +210,7 @@ def mono_bank(id):
 
 
 @app.route('/data/copy-paste3/<int:id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def privat(id):
     form = Chat()
     time = datetime.now() - timedelta(hours=24)
@@ -293,7 +292,7 @@ def widget(id):
                     "TextSize": "small",
                     "TextVAlign": "middle",
                     "TextHAlign": "middle",
-                    "Image": "https://pngimg.com/uploads/buttons/buttons_PNG139.png"
+                    "Image": "https://i.ibb.co/QQHb9gF/photo-2021-02-21-21-31-19.jpg"
                  },
                  {
                     "Columns": 6,
@@ -304,7 +303,7 @@ def widget(id):
                     "TextSize": "small",
                     "TextVAlign": "middle",
                     "TextHAlign": "middle",
-                    "Image": "https://pngimg.com/uploads/buttons/buttons_PNG139.png"
+                    "Image": "https://i.ibb.co/QQHb9gF/photo-2021-02-21-21-31-19.jpg"
                  }
             ]
         }

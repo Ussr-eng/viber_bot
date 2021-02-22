@@ -42,6 +42,7 @@ def check(id, board):
     order_id = None
     last_name = None
     declaration_number = None
+
     for z in range(99):
         phone = (all_clients.json()['orders'][z]['phone'])
         if phone == '+38' + user.phone:

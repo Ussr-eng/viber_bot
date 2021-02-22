@@ -215,6 +215,10 @@ def incoming():
 
                     user = User(user_id=user_id,
                                 name=user_name)
+                    session.add(user)
+                    prom = Prom(owner=user)
+                    session.add(prom)
+                    session.commit()
 
                     keyboard = KeyboardMessage(tracking_data='tracking_data',
                                                keyboard=KEYBOARD_START)
@@ -224,9 +228,6 @@ def incoming():
                         message,
                         keyboard
                     ])
-
-                    session.add(user)
-                    session.commit()
 
                 else:
 
