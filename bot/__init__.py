@@ -17,7 +17,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '99ehisip'
 
-engine = create_engine('sqlite:///viber_bot1.db', connect_args={'check_same_thread': False}, convert_unicode=True)
+engine = create_engine('sqlite:///viber_bot0.db', connect_args={'check_same_thread': False}, convert_unicode=True)
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 connection = engine.raw_connection()
 Base = declarative_base()
@@ -55,5 +55,3 @@ viber.set_webhook('')
 
 from bot.dialog import route    # noqa: E402
 from bot.admin import route     # noqa: E402
-
-

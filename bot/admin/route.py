@@ -81,12 +81,9 @@ def insert():
 
         elif 'not' in get_id:
             get_id = get_id.split()
-            print(get_id[0])
             prom = session.query(Prom).filter_by(user_id=get_id[0]).order_by(Prom.id.desc()).first()
             prom.status = 'waiting payment'
             session.commit()
-            print(False)
-            msg = True
 
         else:
             prom = session.query(Prom).filter_by(user_id=get_id).order_by(Prom.id.desc()).first()
@@ -94,9 +91,8 @@ def insert():
             session.commit()
             message_text(get_id, 'Оплату проверили, готовим посылку к отправке☺')
             colors_chat(prom.id)
-            msg = True
 
-    return jsonify(msg)
+    return jsonify(True)
 
 
 @app.route('/data', methods=['GET', 'POST'])

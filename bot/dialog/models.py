@@ -46,7 +46,8 @@ class ChatMessage(Base):
     __tablename__ = "chat_message"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
     message = Column(String(100), nullable=True)
     image = Column(String(150), nullable=True, default='image.jpg')
     from_admin = Column(Boolean, unique=False, default=True)
@@ -62,7 +63,7 @@ class Prom(Base):
 
     id = Column(Integer, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
     user = relationship("User", back_populates="prom")
 
     status = Column(String(100), default=None)

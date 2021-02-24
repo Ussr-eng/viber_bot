@@ -190,6 +190,8 @@ def incoming():
                         sender.phone = message_user
                         session.commit()
 
+                        check(id=user_id, board=KEYBOARD_START)
+
                         keyboard = KeyboardMessage(tracking_data='tracking_data',
                                                    keyboard=KEYBOARD_START)
                         message = TextMessage(text='Номер {} добавлен!'.format(sender.phone))
@@ -197,8 +199,6 @@ def incoming():
                             message,
                             keyboard
                         ])
-
-                        check(id=user_id, board=KEYBOARD_START)
 
                     else:
 
@@ -235,6 +235,9 @@ def incoming():
                                 name=user_name,
                                 phone=user_message)
                     print('!' + user.phone)
+
+                    check(id=user_id, board=KEYBOARD_START)
+
                     keyboard = KeyboardMessage(tracking_data='tracking_data',
                                                keyboard=KEYBOARD_START)
 
@@ -249,8 +252,6 @@ def incoming():
 
                     session.add(user)
                     session.commit()
-
-                    check(id=user_id, board=KEYBOARD_START)
 
             elif message_user == "Свяжитесь со мной":
 
